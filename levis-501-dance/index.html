@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Levi's 501 · 高精 GLB 3D 舞蹈舞台</title>
+  <title>Levi's 501 · 高精 GLB 丹宁牛仔裤 3D 舞蹈舞台</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <style>
@@ -59,13 +59,13 @@
     #glb-file-input { display: none; }
     .control-dock {
       position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 20;
-      width: min(800px, calc(100vw - 24px)); background: rgba(12, 16, 28, 0.78);
+      width: min(820px, calc(100vw - 24px)); background: rgba(12, 16, 28, 0.78);
       backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       border: 1px solid rgba(255, 255, 255, 0.13); border-radius: 20px; padding: 14px 18px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.48); transition: transform 0.28s ease, opacity 0.25s ease;
     }
     .control-dock.collapsed { transform: translate(-50%, calc(100% + 26px)); opacity: 0; pointer-events: none; }
-    .dock-grid { display: grid; grid-template-columns: 1.15fr 1fr 0.95fr; gap: 14px; align-items: center; }
+    .dock-grid { display: grid; grid-template-columns: 1.25fr 1fr 0.9fr; gap: 14px; align-items: center; }
     .ctrl-group { display: flex; flex-direction: column; gap: 6px; }
     .ctrl-label { font-size: 11px; font-weight: 600; color: #94a3b8; letter-spacing: 0.04em; display: flex; justify-content: space-between; align-items: center; }
     .pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -102,18 +102,18 @@
 <body>
   <div id="canvas-container"></div>
   <div id="loader-overlay" class="loader-overlay">
-    <div class="loader-badge">Levi's 501® · GLB</div>
-    <div id="loader-title" class="loader-title">正在加载高精度 GLB 骨骼舞蹈模型...</div>
+    <div class="loader-badge">Levi's 501® · GLB Denim Shader</div>
+    <div id="loader-title" class="loader-title">正在加载高精度 GLB 骨骼模型并注入 501 丹宁材质...</div>
     <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
-    <div id="loader-sub" class="loader-sub">Michelle.glb (Mixamo 写实骨骼动画 · 3.1 MB)</div>
+    <div id="loader-sub" class="loader-sub">Michelle.glb · 实时 3×1 丹宁斜纹 / 金线车缝 / 后袋红标与皮牌</div>
   </div>
   <div id="toast" class="toast"></div>
   <div class="top-bar">
     <div class="brand-card">
       <div class="red-tab">Levi's 501®</div>
       <div class="brand-text">
-        <h1>高精 GLB 牛仔裤舞者 · 3D 舞台</h1>
-        <p id="model-subtitle">正在加载写实骨骼蒙皮动画...</p>
+        <h1>高精 GLB · Levi's 501 丹宁牛仔裤舞者</h1>
+        <p id="model-subtitle">正在加载骨骼模型与实时 501 丹宁着色器...</p>
       </div>
     </div>
     <div class="top-actions">
@@ -127,19 +127,20 @@
   <div id="control-dock" class="control-dock">
     <div class="dock-grid">
       <div class="ctrl-group">
-        <div class="ctrl-label"><span>舞台与丹宁风格</span><span id="style-badge" style="color:#93c5fd;">501 经典蓝</span></div>
+        <div class="ctrl-label"><span>Levi's 501 水洗丹宁布料</span><span id="style-badge" style="color:#93c5fd;">501 经典水洗蓝</span></div>
         <div class="pill-row" id="dance-pills">
           <button class="pill active" data-style="pop">501 经典蓝</button>
-          <button class="pill" data-style="disco">复古深原牛</button>
-          <button class="pill" data-style="flow">模型原色</button>
+          <button class="pill" data-style="disco">深靛蓝原牛</button>
+          <button class="pill" data-style="vintage">复古浅水洗</button>
+          <button class="pill" data-style="flow">原模型裤</button>
         </div>
       </div>
       <div class="ctrl-group">
         <div class="ctrl-label"><span>镜头视角</span><span id="cam-badge" style="color:#fda4af;">全景舞台</span></div>
         <div class="pill-row" id="cam-pills">
           <button class="pill accent active" data-cam="full">全景</button>
-          <button class="pill accent" data-cam="jeans">牛仔裤特写</button>
-          <button class="pill accent" data-cam="back">背面视角</button>
+          <button class="pill accent" data-cam="jeans">501正面</button>
+          <button class="pill accent" data-cam="back">后袋红标</button>
           <button class="pill accent" data-cam="orbit">自动环绕</button>
         </div>
       </div>
@@ -154,8 +155,8 @@
       </div>
     </div>
     <div class="hint-bar">
-      <span>左键拖动 360° 环绕 · 滚轮缩放 · 可直接将任意 Mixamo / Blender 导出的 .glb 拖入页面替换</span>
-      <div class="hint-badges"><span class="mini-chip">Three.js GLTFLoader</span><span class="mini-chip">PBR Studio IBL</span></div>
+      <span>点击「501正面」或「后袋红标」可近看 3×1 蓝色丹宁斜纹、猫须水洗、金线车缝、排扣、铜铆钉与红标皮牌</span>
+      <div class="hint-badges"><span class="mini-chip">GLSL 丹宁织纹着色</span><span class="mini-chip">骨骼蒙皮精准分区</span></div>
     </div>
   </div>
   <script>
@@ -247,14 +248,14 @@
       keyLight.shadow.camera.top = 3.0; keyLight.shadow.camera.bottom = -1.0;
       keyLight.shadow.bias = -0.0005; scene.add(keyLight);
 
-      const fillLight = new THREE.DirectionalLight(0xdbeafe, 0.9); fillLight.position.set(-2.6, 2.6, 2.4); scene.add(fillLight);
-      const rimLightA = new THREE.PointLight(0xf43f5e, 1.6, 10); rimLightA.position.set(-2.3, 2.2, -2.0); scene.add(rimLightA);
-      const rimLightB = new THREE.PointLight(0x38bdf8, 1.5, 10); rimLightB.position.set(2.4, 2.0, -2.1); scene.add(rimLightB);
+      const fillLight = new THREE.DirectionalLight(0xdbeafe, 0.95); fillLight.position.set(-2.6, 2.6, 2.4); scene.add(fillLight);
+      const rimLightA = new THREE.PointLight(0xf43f5e, 1.5, 10); rimLightA.position.set(-2.3, 2.2, -2.0); scene.add(rimLightA);
+      const rimLightB = new THREE.PointLight(0x38bdf8, 1.4, 10); rimLightB.position.set(2.4, 2.0, -2.1); scene.add(rimLightB);
 
       const lightPresets = {
         sunset: { bg: 0x101320, key: 0xffebd6, keyInt: 1.75, rimA: 0xf43f5e, rimB: 0x38bdf8, hemiSky: 0xfff4e8, hemiGround: 0x26284a, ring1: 0x38bdf8, ring2: 0xf43f5e },
         club: { bg: 0x090a14, key: 0xe0e7ff, keyInt: 1.45, rimA: 0xd946ef, rimB: 0x06b6d4, hemiSky: 0x93c5fd, hemiGround: 0x0f172a, ring1: 0x06b6d4, ring2: 0xd946ef },
-        studio: { bg: 0x1d2332, key: 0xffffff, keyInt: 2.0, rimA: 0xfef3c7, rimB: 0xbae6fd, hemiSky: 0xffffff, hemiGround: 0x334155, ring1: 0x93c5fd, ring2: 0xfca5a5 }
+        studio: { bg: 0x1d2332, key: 0xffffff, keyInt: 2.05, rimA: 0xfef3c7, rimB: 0xbae6fd, hemiSky: 0xffffff, hemiGround: 0x334155, ring1: 0x93c5fd, ring2: 0xfca5a5 }
       };
       function applyLighting(presetKey) {
         const p = lightPresets[presetKey] || lightPresets.sunset;
@@ -265,41 +266,213 @@
         ring1Mat.color.setHex(p.ring1); ring2Mat.color.setHex(p.ring2);
       }
 
+      const denimUniforms = { uDenimMode: { value: 0.0 } };
+
+      function injectLevis501Denim(skinnedMesh) {
+        if (!skinnedMesh || !skinnedMesh.skeleton || !skinnedMesh.geometry) return false;
+        const skel = skinnedMesh.skeleton, bones = skel.bones, invs = skel.boneInverses;
+        if (!bones || !invs || bones.length === 0) return false;
+
+        function findBone(patterns) {
+          for (let i = 0; i < bones.length; i++) {
+            const n = (bones[i].name || '').toLowerCase();
+            if (patterns.some((p) => n.includes(p))) return i;
+          }
+          return -1;
+        }
+        function getBindPos(idx) {
+          if (idx < 0 || !invs[idx]) return null;
+          return new THREE.Vector3().setFromMatrixPosition(new THREE.Matrix4().copy(invs[idx]).invert());
+        }
+
+        const idxHips = findBone(['hips', 'pelvis']);
+        const idxSpine = findBone(['spine1', 'spine']);
+        const idxLUp = findBone(['leftupleg', 'upleg_l', 'thigh_l', 'left_thigh']);
+        const idxRUp = findBone(['rightupleg', 'upleg_r', 'thigh_r', 'right_thigh']);
+        const idxLLeg = findBone(['leftleg', 'shin_l', 'calf_l', 'left_knee']);
+        const idxRLeg = findBone(['rightleg', 'shin_r', 'calf_r', 'right_knee']);
+        const idxLFoot = findBone(['leftfoot', 'foot_l', 'ankle_l']);
+        const idxRFoot = findBone(['rightfoot', 'foot_r', 'ankle_r']);
+        const idxLToe = findBone(['lefttoebase', 'toe_l']);
+        const idxRToe = findBone(['righttoebase', 'toe_r']);
+
+        const pHips = getBindPos(idxHips), pSpine = getBindPos(idxSpine);
+        const pLUp = getBindPos(idxLUp), pRUp = getBindPos(idxRUp);
+        const pLFoot = getBindPos(idxLFoot), pRFoot = getBindPos(idxRFoot);
+        const pLToe = getBindPos(idxLToe), pRToe = getBindPos(idxRToe);
+        if (!pHips || !pLUp || !pRUp || !pLFoot || !pRFoot) return false;
+
+        const pMidAnkle = pLFoot.clone().add(pRFoot).multiplyScalar(0.5);
+        const pTopRef = pSpine ? pSpine.clone() : pHips.clone().add(pHips.clone().sub(pMidAnkle).multiplyScalar(0.14));
+        const upVec = pTopRef.clone().sub(pMidAnkle);
+        const legSpan = upVec.length();
+        if (legSpan < 0.001) return false;
+        const upAxis = upVec.clone().normalize();
+        const rightVec = pRUp.clone().sub(pLUp);
+        const hipHalfWidth = Math.max(rightVec.length() * 0.5, legSpan * 0.09);
+        const rightAxis = rightVec.clone().normalize();
+
+        let fwdAxis = new THREE.Vector3().crossVectors(upAxis, rightAxis).normalize();
+        if (pLToe && pRToe) {
+          const pMidToe = pLToe.clone().add(pRToe).multiplyScalar(0.5);
+          if (pMidToe.sub(pMidAnkle).dot(fwdAxis) < 0) fwdAxis.negate();
+        }
+
+        const legBoneSet = new Set([idxHips, idxLUp, idxRUp, idxLLeg, idxRLeg].filter((i) => i >= 0));
+        const footBoneSet = new Set([idxLFoot, idxRFoot, idxLToe, idxRToe].filter((i) => i >= 0));
+        const geo = skinnedMesh.geometry;
+        const posAttr = geo.attributes.position, siAttr = geo.attributes.skinIndex, swAttr = geo.attributes.skinWeight;
+        if (!posAttr || !siAttr || !swAttr) return false;
+
+        const count = posAttr.count;
+        const jeansMask = new Float32Array(count);
+        const jeansCoord = new Float32Array(count * 3);
+        const v = new THREE.Vector3(), rel = new THREE.Vector3();
+
+        for (let i = 0; i < count; i++) {
+          v.fromBufferAttribute(posAttr, i);
+          rel.copy(v).sub(pMidAnkle);
+          const h = rel.dot(upAxis) / legSpan;
+          const xr = rel.dot(rightAxis) / (hipHalfWidth * 2.0);
+          const zf = rel.dot(fwdAxis) / (hipHalfWidth * 2.0);
+          jeansCoord[i * 3] = xr; jeansCoord[i * 3 + 1] = h; jeansCoord[i * 3 + 2] = zf;
+
+          let wLeg = 0, wFoot = 0;
+          const bs = [siAttr.getX(i), siAttr.getY(i), siAttr.getZ(i), siAttr.getW(i)];
+          const wts = [swAttr.getX(i), swAttr.getY(i), swAttr.getZ(i), swAttr.getW(i)];
+          for (let k = 0; k < 4; k++) {
+            if (legBoneSet.has(bs[k])) wLeg += wts[k];
+            if (footBoneSet.has(bs[k])) wFoot += wts[k];
+          }
+          const waistCut = 1.0 - THREE.MathUtils.smoothstep(h, 0.94, 0.99);
+          const ankleCut = THREE.MathUtils.smoothstep(h, 0.03, 0.075);
+          const boneCut = THREE.MathUtils.smoothstep(wLeg - wFoot * 0.6, 0.42, 0.72);
+          jeansMask[i] = waistCut * ankleCut * boneCut;
+        }
+
+        geo.setAttribute('aJeansMask', new THREE.BufferAttribute(jeansMask, 1));
+        geo.setAttribute('aJeansCoord', new THREE.BufferAttribute(jeansCoord, 3));
+
+        const mats = Array.isArray(skinnedMesh.material) ? skinnedMesh.material : [skinnedMesh.material];
+        mats.forEach((mat) => {
+          if (!mat || mat.userData._levisPatched) return;
+          mat.userData._levisPatched = true;
+          mat.customProgramCacheKey = () => 'levis_501_denim_shader_v2';
+          mat.onBeforeCompile = (shader) => {
+            shader.uniforms.uDenimMode = denimUniforms.uDenimMode;
+            shader.vertexShader = shader.vertexShader
+              .replace('#include <common>', `#include <common>\nattribute float aJeansMask;\nattribute vec3 aJeansCoord;\nvarying float vJeansMask;\nvarying vec3 vJeansCoord;`)
+              .replace('#include <begin_vertex>', `#include <begin_vertex>\nvJeansMask = aJeansMask;\nvJeansCoord = aJeansCoord;`);
+            shader.fragmentShader = shader.fragmentShader
+              .replace('#include <common>', `#include <common>
+                uniform float uDenimMode;
+                varying float vJeansMask;
+                varying vec3 vJeansCoord;
+                float hashDenim(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+                float noiseDenim(vec2 p) {
+                  vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+                  return mix(mix(hashDenim(i), hashDenim(i + vec2(1.0, 0.0)), f.x), mix(hashDenim(i + vec2(0.0, 1.0)), hashDenim(i + vec2(1.0, 1.0)), f.x), f.y);
+                }`)
+              .replace('#include <map_fragment>', `#include <map_fragment>
+                if (uDenimMode < 2.5 && vJeansMask > 0.01) {
+                  float m = smoothstep(0.15, 0.85, vJeansMask);
+                  vec3 jc = vJeansCoord;
+                  float sideAngle = atan(jc.x, jc.z);
+                  vec2 denimUV = vec2(sideAngle * 1.15, jc.y * 5.2);
+                  float twillDiag = sin((denimUV.x * 165.0 + denimUV.y * 165.0)) * 0.5 + 0.5;
+                  float twillFine = sin((denimUV.x * 340.0 - denimUV.y * 90.0)) * 0.5 + 0.5;
+                  float weftSlub = noiseDenim(vec2(denimUV.x * 48.0, denimUV.y * 190.0));
+                  float warpGrain = noiseDenim(vec2(denimUV.x * 180.0, denimUV.y * 42.0));
+                  float weave = mix(twillDiag, twillFine, 0.35) * 0.55 + weftSlub * 0.25 + warpGrain * 0.20;
+
+                  vec3 indigoDark, indigoMid, indigoFade;
+                  if (uDenimMode < 0.5) {
+                    indigoDark = vec3(0.09, 0.19, 0.36); indigoMid = vec3(0.17, 0.34, 0.58); indigoFade = vec3(0.42, 0.58, 0.78);
+                  } else if (uDenimMode < 1.5) {
+                    indigoDark = vec3(0.04, 0.09, 0.20); indigoMid = vec3(0.09, 0.18, 0.36); indigoFade = vec3(0.22, 0.34, 0.54);
+                  } else {
+                    indigoDark = vec3(0.22, 0.37, 0.58); indigoMid = vec3(0.36, 0.54, 0.76); indigoFade = vec3(0.64, 0.77, 0.90);
+                  }
+
+                  float thighFade = exp(-pow((jc.y - 0.62) / 0.24, 2.0)) * smoothstep(-0.15, 0.45, jc.z);
+                  float kneeFade  = exp(-pow((jc.y - 0.44) / 0.11, 2.0)) * smoothstep(-0.1, 0.4, jc.z) * 0.7;
+                  float seatFade  = exp(-pow((jc.y - 0.79) / 0.11, 2.0)) * smoothstep(0.0, -0.45, jc.z) * 0.65;
+                  float whiskers  = (sin(jc.y * 125.0 + abs(jc.x) * 8.0) * 0.5 + 0.5) * exp(-pow((jc.y - 0.80) / 0.085, 2.0)) * smoothstep(0.05, 0.45, jc.z) * 0.35;
+
+                  float washAmount = clamp(thighFade * 0.58 + kneeFade * 0.42 + seatFade * 0.45 + whiskers, 0.0, 0.95);
+                  vec3 denimCol = mix(indigoDark, indigoMid, 0.45 + weave * 0.55);
+                  denimCol = mix(denimCol, indigoFade, washAmount * (0.55 + weave * 0.45));
+
+                  float origLuma = dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114));
+                  float foldShade = clamp(0.62 + origLuma * 0.85, 0.52, 1.22);
+                  denimCol *= foldShade;
+
+                  vec3 goldThread = vec3(0.86, 0.60, 0.20);
+                  float dashY = step(0.35, fract(jc.y * 95.0));
+                  float dashX = step(0.35, fract(sideAngle * 42.0));
+
+                  float waistLine = (smoothstep(0.011, 0.002, abs(jc.y - 0.945)) + smoothstep(0.011, 0.002, abs(jc.y - 0.895))) * dashX;
+                  float outseam = smoothstep(0.085, 0.018, abs(jc.z)) * smoothstep(0.32, 0.52, abs(jc.x)) * dashY;
+                  float flySeam = smoothstep(0.04, 0.008, abs(jc.x - 0.045)) * step(0.75, jc.y) * step(jc.y, 0.92) * smoothstep(0.15, 0.4, jc.z) * dashY;
+                  float cuffMask = smoothstep(0.085, 0.072, jc.y);
+                  vec3 cuffCol = mix(vec3(0.62, 0.72, 0.84), vec3(0.84, 0.12, 0.18), smoothstep(0.006, 0.001, abs(jc.y - 0.075)));
+                  denimCol = mix(denimCol, cuffCol * foldShade, cuffMask * 0.88);
+                  denimCol = mix(denimCol, goldThread, clamp(waistLine + outseam * 0.85 + flySeam * 0.9, 0.0, 1.0) * 0.88);
+
+                  float topBtn = smoothstep(0.042, 0.025, length(vec2(jc.x * 0.9, (jc.y - 0.922) * 2.2))) * smoothstep(0.15, 0.35, jc.z);
+                  denimCol = mix(denimCol, vec3(0.84, 0.87, 0.92), topBtn);
+                  float rivetL = smoothstep(0.024, 0.012, length(vec2((jc.x + 0.38) * 0.9, (jc.y - 0.875) * 2.2))) * smoothstep(0.08, 0.3, jc.z);
+                  float rivetR = smoothstep(0.024, 0.012, length(vec2((jc.x - 0.38) * 0.9, (jc.y - 0.875) * 2.2))) * smoothstep(0.08, 0.3, jc.z);
+                  denimCol = mix(denimCol, vec3(0.85, 0.56, 0.32), clamp(rivetL + rivetR, 0.0, 1.0));
+
+                  if (jc.z < -0.10) {
+                    float backFace = smoothstep(-0.10, -0.26, jc.z);
+                    float px = abs(jc.x) - 0.27, py = jc.y - 0.785;
+                    float inPocket = step(abs(px), 0.165) * step(abs(py), 0.072);
+                    float pocketBorder = (smoothstep(0.014, 0.003, abs(abs(px) - 0.16)) * step(abs(py), 0.075) +
+                                          smoothstep(0.010, 0.002, abs(abs(py) - 0.070)) * step(abs(px), 0.168)) * dashX;
+                    float archY = 0.014 - 0.026 * cos(px * 18.5);
+                    float arcuate = (smoothstep(0.007, 0.0015, abs(py - archY)) + smoothstep(0.007, 0.0015, abs(py - (archY - 0.013)))) * inPocket;
+                    denimCol = mix(denimCol, indigoDark * foldShade * 1.15, inPocket * 0.14 * backFace);
+                    denimCol = mix(denimCol, goldThread, clamp(pocketBorder + arcuate, 0.0, 1.0) * backFace * 0.92);
+
+                    float redTab = step(0.085, jc.x) * step(jc.x, 0.125) * step(0.795, jc.y) * step(jc.y, 0.838) * backFace;
+                    denimCol = mix(denimCol, vec3(0.86, 0.07, 0.16), redTab);
+
+                    float patchMask = step(0.14, jc.x) * step(jc.x, 0.36) * step(0.892, jc.y) * step(jc.y, 0.946) * backFace;
+                    float patchBorder = (smoothstep(0.01, 0.002, abs(jc.x - 0.148)) + smoothstep(0.01, 0.002, abs(jc.x - 0.352))) * patchMask;
+                    vec3 leatherCol = mix(vec3(0.76, 0.56, 0.36), vec3(0.45, 0.22, 0.11), patchBorder * 0.65) * foldShade;
+                    denimCol = mix(denimCol, leatherCol, patchMask);
+                  }
+                  diffuseColor.rgb = mix(diffuseColor.rgb, denimCol, m);
+                }`)
+              .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+                if (uDenimMode < 2.5 && vJeansMask > 0.01) {
+                  roughnessFactor = mix(roughnessFactor, 0.88, smoothstep(0.15, 0.85, vJeansMask));
+                }`);
+          };
+          mat.needsUpdate = true;
+        });
+        return true;
+      }
+
       const modelRoot = new THREE.Group(); scene.add(modelRoot);
       let currentModel = null, mixer = null, activeAction = null;
-      const savedMaterialColors = new Map();
       const state = { playing: true, style: 'pop', bpm: 116, phase: 0 };
-
-      function applyDenimGrade(styleKey) {
-        if (!currentModel) return;
-        currentModel.traverse((obj) => {
-          if (!obj.isMesh || !obj.material) return;
-          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-          mats.forEach((m) => {
-            if (!m.color) return;
-            const orig = savedMaterialColors.get(m.uuid);
-            if (!orig) return;
-            if (styleKey === 'pop') m.color.copy(orig).multiply(new THREE.Color(0.95, 0.99, 1.08));
-            else if (styleKey === 'disco') m.color.copy(orig).multiply(new THREE.Color(0.82, 0.88, 1.05));
-            else m.color.copy(orig);
-            m.needsUpdate = true;
-          });
-        });
-      }
+      const denimModeMap = { pop: 0.0, disco: 1.0, vintage: 2.0, flow: 3.0 };
+      function applyDenimGrade(styleKey) { denimUniforms.uDenimMode.value = styleKey in denimModeMap ? denimModeMap[styleKey] : 0.0; }
 
       function mountGLTF(gltf, label, isDefaultMichelle) {
         if (currentModel) { modelRoot.remove(currentModel); currentModel = null; }
         if (mixer) { mixer.stopAllAction(); mixer = null; activeAction = null; }
-        savedMaterialColors.clear();
         const model = gltf.scene;
+        let denimPatchedCount = 0;
         model.traverse((child) => {
           if (child.isMesh) {
             child.castShadow = true; child.receiveShadow = true; child.frustumCulled = false;
             const mats = Array.isArray(child.material) ? child.material : [child.material];
-            mats.forEach((m) => {
-              if (m && m.color && !savedMaterialColors.has(m.uuid)) savedMaterialColors.set(m.uuid, m.color.clone());
-              if (m && 'envMapIntensity' in m) m.envMapIntensity = 0.85;
-            });
+            mats.forEach((m) => { if (m && 'envMapIntensity' in m) m.envMapIntensity = 0.85; });
+            if (child.isSkinnedMesh && injectLevis501Denim(child)) denimPatchedCount++;
           }
         });
         model.updateMatrixWorld(true);
@@ -309,28 +482,26 @@
           let hasSkinned = false;
           model.traverse((c) => { if (c.isSkinnedMesh) hasSkinned = true; });
           if (!hasSkinned) {
-            const box = new THREE.Box3().setFromObject(model), size = new THREE.Vector3();
-            box.getSize(size);
+            const box = new THREE.Box3().setFromObject(model), size = new THREE.Vector3(); box.getSize(size);
             if (size.y > 0.05 && (size.y > 4 || size.y < 0.5)) model.scale.setScalar(THREE.MathUtils.clamp(1.72 / size.y, 0.005, 50));
             model.updateMatrixWorld(true);
-            const scaledBox = new THREE.Box3().setFromObject(model), scaledCenter = new THREE.Vector3();
-            scaledBox.getCenter(scaledCenter);
+            const scaledBox = new THREE.Box3().setFromObject(model), scaledCenter = new THREE.Vector3(); scaledBox.getCenter(scaledCenter);
             model.position.x -= scaledCenter.x; model.position.z -= scaledCenter.z; model.position.y -= scaledBox.min.y;
           } else {
             model.scale.setScalar(1); model.position.set(0, 0, 0);
           }
         }
         modelRoot.add(model); currentModel = model; applyDenimGrade(state.style);
+        const denimTag = denimPatchedCount > 0 ? ' · 已启用 501 丹宁织纹' : '';
         if (gltf.animations && gltf.animations.length > 0) {
-          mixer = new THREE.AnimationMixer(model);
-          activeAction = mixer.clipAction(gltf.animations[0]);
+          mixer = new THREE.AnimationMixer(model); activeAction = mixer.clipAction(gltf.animations[0]);
           activeAction.play(); activeAction.timeScale = state.bpm / 116;
-          document.getElementById('model-subtitle').textContent = `${label} · 骨骼动画 (${gltf.animations[0].name || 'Dance'})`;
+          document.getElementById('model-subtitle').textContent = `${label}${denimTag}`;
         } else {
-          document.getElementById('model-subtitle').textContent = `${label} · 静态展示模式（未包含骨骼动画）`;
+          document.getElementById('model-subtitle').textContent = `${label}${denimTag}（静态）`;
         }
         loaderOverlay.classList.add('hidden');
-        showToast(`已加载高精模型：${label}`);
+        showToast(`已加载：${label}${denimTag}`);
       }
 
       const defaultGlbUrls = [
@@ -351,7 +522,7 @@
         loaderSub.textContent = `正在从 CDN 源 ${urlIndex + 1}/${defaultGlbUrls.length} 加载 Michelle.glb...`;
         gltfLoader.load(
           defaultGlbUrls[urlIndex],
-          (gltf) => { progressFill.style.width = '100%'; mountGLTF(gltf, 'Michelle.glb (Mixamo 写实牛仔裤舞者)', true); },
+          (gltf) => { progressFill.style.width = '100%'; mountGLTF(gltf, 'Michelle.glb', true); },
           (xhr) => { if (xhr && xhr.total > 0) progressFill.style.width = Math.min(96, Math.round((xhr.loaded / xhr.total) * 100)) + '%'; },
           () => loadDefaultGLB(urlIndex + 1)
         );
@@ -382,8 +553,8 @@
       function setCameraPreset(preset) {
         camState.autoOrbit = false;
         if (preset === 'full') { camState.goalTheta = 0.24; camState.goalPhi = 1.40; camState.goalRadius = 3.15; camState.goalTargetY = 0.96; }
-        else if (preset === 'jeans') { camState.goalTheta = 0.14; camState.goalPhi = 1.48; camState.goalRadius = 1.58; camState.goalTargetY = 0.72; }
-        else if (preset === 'back') { camState.goalTheta = Math.PI - 0.22; camState.goalPhi = 1.44; camState.goalRadius = 1.65; camState.goalTargetY = 0.86; }
+        else if (preset === 'jeans') { camState.goalTheta = 0.12; camState.goalPhi = 1.48; camState.goalRadius = 1.52; camState.goalTargetY = 0.72; }
+        else if (preset === 'back') { camState.goalTheta = Math.PI - 0.20; camState.goalPhi = 1.44; camState.goalRadius = 1.55; camState.goalTargetY = 0.84; }
         else if (preset === 'orbit') { camState.autoOrbit = true; camState.goalPhi = 1.38; camState.goalRadius = 2.95; camState.goalTargetY = 0.96; }
       }
       container.addEventListener('pointerdown', (e) => { camState.dragging = true; camState.autoOrbit = false; camState.lastX = e.clientX; camState.lastY = e.clientY; });
@@ -395,7 +566,7 @@
         camState.goalPhi = Math.max(0.55, Math.min(1.62, camState.goalPhi - dy * 0.0058));
       });
       window.addEventListener('pointerup', () => { camState.dragging = false; });
-      container.addEventListener('wheel', (e) => { e.preventDefault(); camState.goalRadius = Math.max(1.15, Math.min(5.6, camState.goalRadius + e.deltaY * 0.002)); }, { passive: false });
+      container.addEventListener('wheel', (e) => { e.preventDefault(); camState.goalRadius = Math.max(1.1, Math.min(5.6, camState.goalRadius + e.deltaY * 0.002)); }, { passive: false });
 
       let audioCtx = null, musicEnabled = false, nextStepTime = 0, stepIndex = 0, audioTimer = null;
       function playKick(time) {
@@ -446,8 +617,8 @@
         }
       }
 
-      const styleNames = { pop: '501 经典蓝', disco: '复古深原牛', flow: '模型原色' };
-      const camNames = { full: '全景舞台', jeans: '牛仔裤特写', back: '背面视角', orbit: '自动环绕' };
+      const styleNames = { pop: '501 经典水洗蓝', disco: '深靛蓝原牛', vintage: '复古浅水洗', flow: '原模型裤' };
+      const camNames = { full: '全景舞台', jeans: '501 正面细节', back: '后袋红标', orbit: '自动环绕' };
       document.querySelectorAll('#dance-pills .pill').forEach((btn) => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('#dance-pills .pill').forEach((b) => b.classList.remove('active'));
@@ -514,7 +685,6 @@
         camera.lookAt(0, camState.targetY, 0);
         renderer.render(scene, camera);
       }
-
       loadDefaultGLB(0);
       animate();
     })();
