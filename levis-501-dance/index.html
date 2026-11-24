@@ -113,7 +113,7 @@
       <div class="red-tab">Levi's 501®</div>
       <div class="brand-text">
         <h1>高精 GLB 牛仔裤舞者 · 3D 舞台</h1>
-        <p id="model-subtitle">写实骨骼蒙皮动画 · 支持拖入自定义 .glb 模型</p>
+        <p id="model-subtitle">正在加载写实骨骼蒙皮动画...</p>
       </div>
     </div>
     <div class="top-actions">
@@ -175,8 +175,8 @@
 
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x101320);
-      scene.fog = new THREE.FogExp2(0x101320, 0.035);
-      const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.05, 100);
+      scene.fog = new THREE.FogExp2(0x101320, 0.032);
+      const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.05, 100);
       const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -184,17 +184,16 @@
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.15;
-      renderer.physicallyCorrectLights = true;
+      renderer.toneMappingExposure = 1.18;
       container.appendChild(renderer.domElement);
 
       function buildStudioEnvMap() {
-        const envScene = new THREE.Scene(); envScene.background = new THREE.Color(0x1b2030);
+        const envScene = new THREE.Scene(); envScene.background = new THREE.Color(0x23293e);
         [
           { pos: [0, 6, 4], scale: [10, 5, 0.2], color: 0xfff5e8 },
           { pos: [-7, 3, -2], scale: [0.2, 6, 8], color: 0xf472b6 },
           { pos: [7, 3, -2], scale: [0.2, 6, 8], color: 0x38bdf8 },
-          { pos: [0, 8, -4], scale: [12, 0.2, 6], color: 0xf1f5f9 },
+          { pos: [0, 8, -4], scale: [12, 0.2, 6], color: 0xf8fafc },
           { pos: [0, -4, 0], scale: [14, 0.2, 14], color: 0x1e293b }
         ].forEach((p) => {
           const m = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: p.color }));
@@ -218,7 +217,7 @@
       }
 
       const floor = new THREE.Mesh(new THREE.CircleGeometry(10, 72), new THREE.MeshStandardMaterial({
-        map: createStageFloorTexture(), roughness: 0.24, metalness: 0.30, envMapIntensity: 0.8
+        map: createStageFloorTexture(), roughness: 0.28, metalness: 0.26, envMapIntensity: 0.75
       }));
       floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
 
@@ -239,17 +238,23 @@
       const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xfde68a, size: 0.03, transparent: true, opacity: 0.55 }));
       scene.add(particles);
 
-      const hemiLight = new THREE.HemisphereLight(0xfff4e8, 0x1e1b4b, 1.1); scene.add(hemiLight);
-      const keyLight = new THREE.SpotLight(0xfff1e0, 28, 18, Math.PI / 4, 0.55, 1.5);
-      keyLight.position.set(2.3, 4.5, 3.2); keyLight.castShadow = true; keyLight.shadow.mapSize.width = 2048; keyLight.shadow.mapSize.height = 2048; keyLight.shadow.bias = -0.0004; scene.add(keyLight);
-      const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.0); fillLight.position.set(-2.6, 2.6, 2.4); scene.add(fillLight);
-      const rimLightA = new THREE.PointLight(0xf43f5e, 16, 10, 1.5); rimLightA.position.set(-2.3, 2.2, -2.0); scene.add(rimLightA);
-      const rimLightB = new THREE.PointLight(0x38bdf8, 15, 10, 1.5); rimLightB.position.set(2.4, 2.0, -2.1); scene.add(rimLightB);
+      const hemiLight = new THREE.HemisphereLight(0xfff4e8, 0x26284a, 1.35); scene.add(hemiLight);
+      const keyLight = new THREE.DirectionalLight(0xfff1e0, 1.75);
+      keyLight.position.set(2.4, 4.6, 3.4); keyLight.castShadow = true;
+      keyLight.shadow.mapSize.width = 2048; keyLight.shadow.mapSize.height = 2048;
+      keyLight.shadow.camera.near = 0.5; keyLight.shadow.camera.far = 16;
+      keyLight.shadow.camera.left = -2.5; keyLight.shadow.camera.right = 2.5;
+      keyLight.shadow.camera.top = 3.0; keyLight.shadow.camera.bottom = -1.0;
+      keyLight.shadow.bias = -0.0005; scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0xdbeafe, 0.9); fillLight.position.set(-2.6, 2.6, 2.4); scene.add(fillLight);
+      const rimLightA = new THREE.PointLight(0xf43f5e, 1.6, 10); rimLightA.position.set(-2.3, 2.2, -2.0); scene.add(rimLightA);
+      const rimLightB = new THREE.PointLight(0x38bdf8, 1.5, 10); rimLightB.position.set(2.4, 2.0, -2.1); scene.add(rimLightB);
 
       const lightPresets = {
-        sunset: { bg: 0x101320, key: 0xffebd6, keyInt: 28, rimA: 0xf43f5e, rimB: 0x38bdf8, hemiSky: 0xfff4e8, hemiGround: 0x1e1b4b, ring1: 0x38bdf8, ring2: 0xf43f5e },
-        club: { bg: 0x090a14, key: 0xe0e7ff, keyInt: 24, rimA: 0xd946ef, rimB: 0x06b6d4, hemiSky: 0x818cf8, hemiGround: 0x0f172a, ring1: 0x06b6d4, ring2: 0xd946ef },
-        studio: { bg: 0x1d2332, key: 0xffffff, keyInt: 32, rimA: 0xfef3c7, rimB: 0xbae6fd, hemiSky: 0xf8fafc, hemiGround: 0x334155, ring1: 0x93c5fd, ring2: 0xfca5a5 }
+        sunset: { bg: 0x101320, key: 0xffebd6, keyInt: 1.75, rimA: 0xf43f5e, rimB: 0x38bdf8, hemiSky: 0xfff4e8, hemiGround: 0x26284a, ring1: 0x38bdf8, ring2: 0xf43f5e },
+        club: { bg: 0x090a14, key: 0xe0e7ff, keyInt: 1.45, rimA: 0xd946ef, rimB: 0x06b6d4, hemiSky: 0x93c5fd, hemiGround: 0x0f172a, ring1: 0x06b6d4, ring2: 0xd946ef },
+        studio: { bg: 0x1d2332, key: 0xffffff, keyInt: 2.0, rimA: 0xfef3c7, rimB: 0xbae6fd, hemiSky: 0xffffff, hemiGround: 0x334155, ring1: 0x93c5fd, ring2: 0xfca5a5 }
       };
       function applyLighting(presetKey) {
         const p = lightPresets[presetKey] || lightPresets.sunset;
@@ -282,7 +287,7 @@
         });
       }
 
-      function mountGLTF(gltf, label) {
+      function mountGLTF(gltf, label, isDefaultMichelle) {
         if (currentModel) { modelRoot.remove(currentModel); currentModel = null; }
         if (mixer) { mixer.stopAllAction(); mixer = null; activeAction = null; }
         savedMaterialColors.clear();
@@ -297,12 +302,24 @@
             });
           }
         });
-        const box = new THREE.Box3().setFromObject(model), size = new THREE.Vector3();
-        box.getSize(size);
-        model.scale.setScalar(size.y > 0.001 ? 1.72 / size.y : 1);
-        const scaledBox = new THREE.Box3().setFromObject(model), scaledCenter = new THREE.Vector3();
-        scaledBox.getCenter(scaledCenter);
-        model.position.x -= scaledCenter.x; model.position.z -= scaledCenter.z; model.position.y -= scaledBox.min.y;
+        model.updateMatrixWorld(true);
+        if (isDefaultMichelle) {
+          model.scale.setScalar(1); model.position.set(0, 0, 0);
+        } else {
+          let hasSkinned = false;
+          model.traverse((c) => { if (c.isSkinnedMesh) hasSkinned = true; });
+          if (!hasSkinned) {
+            const box = new THREE.Box3().setFromObject(model), size = new THREE.Vector3();
+            box.getSize(size);
+            if (size.y > 0.05 && (size.y > 4 || size.y < 0.5)) model.scale.setScalar(THREE.MathUtils.clamp(1.72 / size.y, 0.005, 50));
+            model.updateMatrixWorld(true);
+            const scaledBox = new THREE.Box3().setFromObject(model), scaledCenter = new THREE.Vector3();
+            scaledBox.getCenter(scaledCenter);
+            model.position.x -= scaledCenter.x; model.position.z -= scaledCenter.z; model.position.y -= scaledBox.min.y;
+          } else {
+            model.scale.setScalar(1); model.position.set(0, 0, 0);
+          }
+        }
         modelRoot.add(model); currentModel = model; applyDenimGrade(state.style);
         if (gltf.animations && gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(model);
@@ -326,6 +343,7 @@
         if (urlIndex >= defaultGlbUrls.length) {
           loaderTitle.textContent = '模型加载失败（网络受限）';
           loaderSub.textContent = '请点击右上角「↑ 换 GLB 模型」选择本地 .glb 文件，或刷新重试';
+          document.getElementById('model-subtitle').textContent = 'GLB 下载失败，请检查网络或拖入本地 .glb';
           progressFill.style.width = '100%';
           setTimeout(() => loaderOverlay.classList.add('hidden'), 2400);
           return;
@@ -333,7 +351,7 @@
         loaderSub.textContent = `正在从 CDN 源 ${urlIndex + 1}/${defaultGlbUrls.length} 加载 Michelle.glb...`;
         gltfLoader.load(
           defaultGlbUrls[urlIndex],
-          (gltf) => { progressFill.style.width = '100%'; mountGLTF(gltf, 'Michelle.glb (Mixamo 写实牛仔裤舞者)'); },
+          (gltf) => { progressFill.style.width = '100%'; mountGLTF(gltf, 'Michelle.glb (Mixamo 写实牛仔裤舞者)', true); },
           (xhr) => { if (xhr && xhr.total > 0) progressFill.style.width = Math.min(96, Math.round((xhr.loaded / xhr.total) * 100)) + '%'; },
           () => loadDefaultGLB(urlIndex + 1)
         );
@@ -347,7 +365,7 @@
         progressFill.style.width = '50%';
         const reader = new FileReader();
         reader.onload = (ev) => {
-          gltfLoader.parse(ev.target.result, '', (gltf) => { progressFill.style.width = '100%'; mountGLTF(gltf, file.name); }, () => {
+          gltfLoader.parse(ev.target.result, '', (gltf) => { progressFill.style.width = '100%'; mountGLTF(gltf, file.name, false); }, () => {
             loaderOverlay.classList.add('hidden'); showToast('GLB 文件解析失败，请确认是有效的 .glb 模型');
           });
         };
@@ -496,6 +514,7 @@
         camera.lookAt(0, camState.targetY, 0);
         renderer.render(scene, camera);
       }
+
       loadDefaultGLB(0);
       animate();
     })();
