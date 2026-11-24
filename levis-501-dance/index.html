@@ -3,50 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Levi's 501 · 3D 舞蹈展示场景</title>
+  <title>Levi's 501 · 高精 GLB 3D 舞蹈舞台</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      width: 100%; height: 100%; overflow: hidden; background: #0d0f18;
+      width: 100%; height: 100%; overflow: hidden; background: #0c0e17;
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
       color: #f8fafc; user-select: none; -webkit-user-select: none;
     }
     #canvas-container { position: fixed; inset: 0; width: 100%; height: 100%; cursor: grab; }
     #canvas-container:active { cursor: grabbing; }
+    .loader-overlay {
+      position: fixed; inset: 0; z-index: 40;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      background: radial-gradient(circle at center, rgba(20, 26, 46, 0.92), rgba(10, 12, 22, 0.98));
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+    .loader-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-badge {
+      background: linear-gradient(135deg, #d91433, #a80c24);
+      padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 14px; letter-spacing: 0.05em;
+      box-shadow: 0 4px 18px rgba(217, 20, 51, 0.5);
+    }
+    .loader-title { font-size: 16px; font-weight: 600; color: #f1f5f9; }
+    .progress-track { width: min(300px, 76vw); height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+    .progress-fill { height: 100%; width: 8%; border-radius: 999px; background: linear-gradient(90deg, #3b82f6, #f43f5e); transition: width 0.2s ease; }
+    .loader-sub { font-size: 12px; color: #94a3b8; }
     .top-bar {
       position: fixed; top: 16px; left: 16px; right: 16px;
       display: flex; align-items: flex-start; justify-content: space-between;
       pointer-events: none; z-index: 20; gap: 12px;
     }
     .brand-card {
-      pointer-events: auto; display: flex; align-items: center; gap: 12px;
-      padding: 10px 16px; border-radius: 16px;
-      background: rgba(15, 20, 34, 0.68); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      pointer-events: auto; display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 16px;
+      background: rgba(14, 18, 30, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
     }
     .red-tab {
-      background: #c8102e; color: #ffffff; font-weight: 800; font-size: 13px;
-      letter-spacing: 0.04em; padding: 6px 10px; border-radius: 6px;
-      box-shadow: 0 2px 10px rgba(200, 16, 46, 0.45); white-space: nowrap;
+      background: linear-gradient(135deg, #d91433, #a80c24); color: #ffffff; font-weight: 800; font-size: 13px;
+      letter-spacing: 0.04em; padding: 6px 10px; border-radius: 6px; box-shadow: 0 2px 12px rgba(217, 20, 51, 0.5); white-space: nowrap;
     }
     .brand-text h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.01em; line-height: 1.2; }
     .brand-text p { font-size: 12px; color: #94a3b8; margin-top: 2px; }
-    .top-actions { pointer-events: auto; display: flex; gap: 8px; align-items: center; }
+    .top-actions { pointer-events: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
     .icon-btn {
       display: inline-flex; align-items: center; gap: 6px; padding: 9px 13px; border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(15, 20, 34, 0.68);
-      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(14, 18, 30, 0.72);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       color: #f1f5f9; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
     }
-    .icon-btn:hover { background: rgba(30, 41, 68, 0.85); border-color: rgba(255, 255, 255, 0.28); }
-    .icon-btn.active { background: rgba(200, 16, 46, 0.88); border-color: rgba(255, 130, 150, 0.55); color: #fff; }
+    .icon-btn:hover { background: rgba(30, 41, 68, 0.88); border-color: rgba(255, 255, 255, 0.3); }
+    .icon-btn.active { background: rgba(200, 16, 46, 0.9); border-color: rgba(255, 130, 150, 0.6); color: #fff; }
+    #glb-file-input { display: none; }
     .control-dock {
       position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 20;
-      width: min(760px, calc(100vw - 24px)); background: rgba(13, 18, 32, 0.76);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      width: min(800px, calc(100vw - 24px)); background: rgba(12, 16, 28, 0.78);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       border: 1px solid rgba(255, 255, 255, 0.13); border-radius: 20px; padding: 14px 18px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45); transition: transform 0.28s ease, opacity 0.25s ease;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.48); transition: transform 0.28s ease, opacity 0.25s ease;
     }
     .control-dock.collapsed { transform: translate(-50%, calc(100% + 26px)); opacity: 0; pointer-events: none; }
     .dock-grid { display: grid; grid-template-columns: 1.15fr 1fr 0.95fr; gap: 14px; align-items: center; }
@@ -59,7 +75,7 @@
       color: #cbd5e1; font-size: 12px; font-weight: 600; cursor: pointer;
       transition: all 0.18s ease; text-align: center; white-space: nowrap;
     }
-    .pill:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+    .pill:hover { background: rgba(255, 255, 255, 0.13); color: #fff; }
     .pill.active { background: #2563eb; border-color: #60a5fa; color: #ffffff; box-shadow: 0 2px 10px rgba(37, 99, 235, 0.45); }
     .pill.accent.active { background: #c8102e; border-color: #fb7185; box-shadow: 0 2px 10px rgba(200, 16, 46, 0.45); }
     .slider-wrap { display: flex; align-items: center; gap: 10px; }
@@ -68,6 +84,13 @@
     .hint-bar { margin-top: 10px; padding-top: 9px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: #94a3b8; flex-wrap: wrap; gap: 8px; }
     .hint-badges { display: flex; gap: 6px; flex-wrap: wrap; }
     .mini-chip { background: rgba(255, 255, 255, 0.07); padding: 3px 8px; border-radius: 999px; color: #cbd5e1; font-size: 11px; }
+    .toast {
+      position: fixed; top: 76px; left: 50%; transform: translateX(-50%) translateY(-10px); z-index: 50;
+      padding: 9px 16px; border-radius: 12px; background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(96, 165, 250, 0.4); color: #e2e8f0; font-size: 12.5px;
+      opacity: 0; pointer-events: none; transition: all 0.25s ease;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     @media (max-width: 720px) {
       .dock-grid { grid-template-columns: 1fr; gap: 10px; }
       .brand-text p { display: none; }
@@ -78,61 +101,82 @@
 </head>
 <body>
   <div id="canvas-container"></div>
+  <div id="loader-overlay" class="loader-overlay">
+    <div class="loader-badge">Levi's 501® · GLB</div>
+    <div id="loader-title" class="loader-title">正在加载高精度 GLB 骨骼舞蹈模型...</div>
+    <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+    <div id="loader-sub" class="loader-sub">Michelle.glb (Mixamo 写实骨骼动画 · 3.1 MB)</div>
+  </div>
+  <div id="toast" class="toast"></div>
   <div class="top-bar">
     <div class="brand-card">
       <div class="red-tab">Levi's 501®</div>
       <div class="brand-text">
-        <h1>经典女式 501 牛仔裤 · 3D 舞台</h1>
-        <p>高腰直筒水洗丹宁 · 标志性排扣与后袋小红标</p>
+        <h1>高精 GLB 牛仔裤舞者 · 3D 舞台</h1>
+        <p id="model-subtitle">写实骨骼蒙皮动画 · 支持拖入自定义 .glb 模型</p>
       </div>
     </div>
     <div class="top-actions">
+      <input id="glb-file-input" type="file" accept=".glb,.gltf" />
+      <button id="btn-upload" class="icon-btn" title="替换本地 GLB 模型">↑ 换 GLB 模型</button>
       <button id="btn-music" class="icon-btn" title="切换节奏音乐">♪ 节拍: 关</button>
       <button id="btn-play" class="icon-btn active" title="暂停/继续舞蹈">❚❚ 跳舞中</button>
-      <button id="btn-panel" class="icon-btn" title="展开/收起控制面板">控制面板</button>
+      <button id="btn-panel" class="icon-btn" title="展开/收起控制面板">收起面板</button>
     </div>
   </div>
   <div id="control-dock" class="control-dock">
     <div class="dock-grid">
       <div class="ctrl-group">
-        <div class="ctrl-label"><span>舞种风格</span><span id="style-badge" style="color:#93c5fd;">Groove Pop</span></div>
+        <div class="ctrl-label"><span>舞台与丹宁风格</span><span id="style-badge" style="color:#93c5fd;">501 经典蓝</span></div>
         <div class="pill-row" id="dance-pills">
-          <button class="pill active" data-style="pop">流行律动</button>
-          <button class="pill" data-style="disco">复古迪斯科</button>
-          <button class="pill" data-style="flow">自由摇摆</button>
+          <button class="pill active" data-style="pop">501 经典蓝</button>
+          <button class="pill" data-style="disco">复古深原牛</button>
+          <button class="pill" data-style="flow">模型原色</button>
         </div>
       </div>
       <div class="ctrl-group">
-        <div class="ctrl-label"><span>镜头视角</span><span id="cam-badge" style="color:#fda4af;">全景环绕</span></div>
+        <div class="ctrl-label"><span>镜头视角</span><span id="cam-badge" style="color:#fda4af;">全景舞台</span></div>
         <div class="pill-row" id="cam-pills">
           <button class="pill accent active" data-cam="full">全景</button>
-          <button class="pill accent" data-cam="jeans">501正面</button>
-          <button class="pill accent" data-cam="back">后袋红标</button>
+          <button class="pill accent" data-cam="jeans">牛仔裤特写</button>
+          <button class="pill accent" data-cam="back">背面视角</button>
           <button class="pill accent" data-cam="orbit">自动环绕</button>
         </div>
       </div>
       <div class="ctrl-group">
-        <div class="ctrl-label"><span>节奏速度</span><span id="bpm-val" style="color:#f8fafc;">116 BPM</span></div>
-        <div class="slider-wrap"><input id="bpm-slider" type="range" min="80" max="148" value="116" step="2" /></div>
+        <div class="ctrl-label"><span>舞蹈速度</span><span id="bpm-val" style="color:#f8fafc;">1.00x · 116 BPM</span></div>
+        <div class="slider-wrap"><input id="bpm-slider" type="range" min="60" max="174" value="116" step="2" /></div>
         <div class="pill-row" id="light-pills" style="margin-top:2px;">
-          <button class="pill active" data-light="sunset">落日霓虹</button>
-          <button class="pill" data-light="club">午夜舞台</button>
-          <button class="pill" data-light="studio">影棚自然</button>
+          <button class="pill active" data-light="sunset">落日影棚</button>
+          <button class="pill" data-light="club">霓虹舞台</button>
+          <button class="pill" data-light="studio">柔光自然</button>
         </div>
       </div>
     </div>
     <div class="hint-bar">
-      <span>左键拖动可 360° 旋转视角 · 滚轮缩放查看 501 丹宁纹理、前门襟金属排扣与后腰皮牌</span>
-      <div class="hint-badges"><span class="mini-chip">Three.js WebGL</span><span class="mini-chip">程序化丹宁织纹</span></div>
+      <span>左键拖动 360° 环绕 · 滚轮缩放 · 可直接将任意 Mixamo / Blender 导出的 .glb 拖入页面替换</span>
+      <div class="hint-badges"><span class="mini-chip">Three.js GLTFLoader</span><span class="mini-chip">PBR Studio IBL</span></div>
     </div>
   </div>
   <script>
     (function () {
       const container = document.getElementById('canvas-container');
+      const loaderOverlay = document.getElementById('loader-overlay');
+      const loaderTitle = document.getElementById('loader-title');
+      const loaderSub = document.getElementById('loader-sub');
+      const progressFill = document.getElementById('progress-fill');
+      const toastEl = document.getElementById('toast');
+
+      function showToast(msg) {
+        toastEl.textContent = msg; toastEl.classList.add('show');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => toastEl.classList.remove('show'), 2800);
+      }
+
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x101322);
-      scene.fog = new THREE.FogExp2(0x101322, 0.042);
-      const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
+      scene.background = new THREE.Color(0x101320);
+      scene.fog = new THREE.FogExp2(0x101320, 0.035);
+      const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.05, 100);
       const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -140,290 +184,73 @@
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.12;
+      renderer.toneMappingExposure = 1.15;
+      renderer.physicallyCorrectLights = true;
       container.appendChild(renderer.domElement);
 
-      function createDenimTexture() {
-        const c = document.createElement('canvas'); c.width = 512; c.height = 512;
-        const ctx = c.getContext('2d');
-        const grad = ctx.createLinearGradient(0, 0, 0, 512);
-        grad.addColorStop(0, '#304c75'); grad.addColorStop(0.45, '#466a9a');
-        grad.addColorStop(0.72, '#3d5e8c'); grad.addColorStop(1, '#2b456b');
-        ctx.fillStyle = grad; ctx.fillRect(0, 0, 512, 512);
-        ctx.strokeStyle = 'rgba(225, 238, 255, 0.08)'; ctx.lineWidth = 1;
-        for (let i = -512; i < 1024; i += 4) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + 512, 512); ctx.stroke(); }
-        ctx.strokeStyle = 'rgba(15, 28, 52, 0.14)';
-        for (let i = -512; i < 1024; i += 6) { ctx.beginPath(); ctx.moveTo(i + 2, 0); ctx.lineTo(i + 514, 512); ctx.stroke(); }
-        for (let i = 0; i < 4500; i++) {
-          const x = Math.random() * 512, y = Math.random() * 512, w = 1 + Math.random() * 2, alpha = Math.random() * 0.09;
-          ctx.fillStyle = Math.random() > 0.45 ? `rgba(210, 228, 250, ${alpha})` : `rgba(18, 30, 55, ${alpha})`;
-          ctx.fillRect(x, y, w, 1);
-        }
-        const wash = ctx.createRadialGradient(256, 220, 20, 256, 220, 220);
-        wash.addColorStop(0, 'rgba(186, 212, 245, 0.18)'); wash.addColorStop(1, 'rgba(186, 212, 245, 0)');
-        ctx.fillStyle = wash; ctx.fillRect(0, 0, 512, 512);
-        ctx.strokeStyle = '#d49a42'; ctx.lineWidth = 2.2; ctx.setLineDash([7, 5]);
-        [10, 17, 495, 502].forEach((x) => { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke(); });
-        ctx.setLineDash([]);
-        const tex = new THREE.CanvasTexture(c);
-        tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; tex.encoding = THREE.sRGBEncoding;
-        return tex;
+      function buildStudioEnvMap() {
+        const envScene = new THREE.Scene(); envScene.background = new THREE.Color(0x1b2030);
+        [
+          { pos: [0, 6, 4], scale: [10, 5, 0.2], color: 0xfff5e8 },
+          { pos: [-7, 3, -2], scale: [0.2, 6, 8], color: 0xf472b6 },
+          { pos: [7, 3, -2], scale: [0.2, 6, 8], color: 0x38bdf8 },
+          { pos: [0, 8, -4], scale: [12, 0.2, 6], color: 0xf1f5f9 },
+          { pos: [0, -4, 0], scale: [14, 0.2, 14], color: 0x1e293b }
+        ].forEach((p) => {
+          const m = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: p.color }));
+          m.position.set(...p.pos); m.scale.set(...p.scale); envScene.add(m);
+        });
+        const pmrem = new THREE.PMREMGenerator(renderer); pmrem.compileEquirectangularShader();
+        const rt = pmrem.fromScene(envScene, 0.04); pmrem.dispose(); return rt.texture;
       }
-
-      function createBackPocketTexture() {
-        const c = document.createElement('canvas'); c.width = 256; c.height = 256;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#33527d'; ctx.fillRect(0, 0, 256, 256);
-        ctx.strokeStyle = 'rgba(220,235,255,0.09)';
-        for (let i = -256; i < 512; i += 5) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + 256, 256); ctx.stroke(); }
-        ctx.strokeStyle = '#e0a545'; ctx.lineWidth = 4; ctx.setLineDash([10, 6]); ctx.strokeRect(12, 12, 232, 232);
-        ctx.setLineDash([8, 4]); ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.moveTo(16, 108); ctx.quadraticCurveTo(78, 86, 128, 146); ctx.quadraticCurveTo(178, 86, 240, 108); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(16, 120); ctx.quadraticCurveTo(78, 98, 128, 158); ctx.quadraticCurveTo(178, 98, 240, 120); ctx.stroke();
-        const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; return tex;
-      }
-
-      function createLeatherPatchTexture() {
-        const c = document.createElement('canvas'); c.width = 256; c.height = 140;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#c89e72'; ctx.fillRect(0, 0, 256, 140);
-        ctx.strokeStyle = '#7d4b29'; ctx.lineWidth = 5; ctx.strokeRect(8, 8, 240, 124);
-        ctx.fillStyle = '#991b1b'; ctx.font = 'bold 34px sans-serif'; ctx.textAlign = 'center'; ctx.fillText("LEVI'S", 128, 54);
-        ctx.fillStyle = '#4a2815'; ctx.font = 'bold 40px sans-serif'; ctx.fillText('501', 128, 106);
-        const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; return tex;
-      }
-
-      function createRibKnitTexture() {
-        const c = document.createElement('canvas'); c.width = 256; c.height = 256;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, 256, 256);
-        for (let x = 0; x < 256; x += 6) { ctx.fillStyle = 'rgba(148, 163, 184, 0.18)'; ctx.fillRect(x, 0, 2, 256); }
-        const tex = new THREE.CanvasTexture(c);
-        tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(3, 2); tex.encoding = THREE.sRGBEncoding;
-        return tex;
-      }
+      scene.environment = buildStudioEnvMap();
 
       function createStageFloorTexture() {
-        const c = document.createElement('canvas'); c.width = 512; c.height = 512;
+        const c = document.createElement('canvas'); c.width = 1024; c.height = 1024;
         const ctx = c.getContext('2d');
-        ctx.fillStyle = '#141827'; ctx.fillRect(0, 0, 512, 512);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.045)'; ctx.lineWidth = 1;
-        for (let i = 0; i <= 512; i += 32) {
-          ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
-        }
-        const tex = new THREE.CanvasTexture(c);
-        tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(6, 6); tex.encoding = THREE.sRGBEncoding;
-        return tex;
+        const g = ctx.createRadialGradient(512, 512, 30, 512, 512, 512);
+        g.addColorStop(0, '#262d47'); g.addColorStop(0.5, '#161a2b'); g.addColorStop(1, '#0c0e17');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, 1024, 1024);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(512, 512, 230, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(512, 512, 340, 0, Math.PI * 2); ctx.stroke();
+        const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 8; return tex;
       }
 
-      const denimMat = new THREE.MeshStandardMaterial({ map: createDenimTexture(), roughness: 0.78, metalness: 0.04 });
-      const denimCuffMat = new THREE.MeshStandardMaterial({ color: 0x9eb5d4, roughness: 0.85, metalness: 0.02 });
-      const pocketMat = new THREE.MeshStandardMaterial({ map: createBackPocketTexture(), roughness: 0.76, metalness: 0.04 });
-      const patchMat = new THREE.MeshStandardMaterial({ map: createLeatherPatchTexture(), roughness: 0.82 });
-      const redTabMat = new THREE.MeshStandardMaterial({ color: 0xd6112d, roughness: 0.55, emissive: 0x3a040c, emissiveIntensity: 0.35 });
-      const rivetMat = new THREE.MeshStandardMaterial({ color: 0xd99b66, roughness: 0.28, metalness: 0.85 });
-      const silverBtnMat = new THREE.MeshStandardMaterial({ color: 0xdbe3ee, roughness: 0.25, metalness: 0.88 });
-      const stitchMat = new THREE.MeshStandardMaterial({ color: 0xdf9e3b, roughness: 0.65 });
-      const skinMat = new THREE.MeshStandardMaterial({ color: 0xf4c3a4, roughness: 0.48, metalness: 0.02 });
-      const topMat = new THREE.MeshStandardMaterial({ map: createRibKnitTexture(), color: 0xffffff, roughness: 0.65 });
-      const hairMat = new THREE.MeshStandardMaterial({ color: 0x2a1a15, roughness: 0.42, metalness: 0.1 });
-      const lipMat = new THREE.MeshStandardMaterial({ color: 0xd65a6e, roughness: 0.32 });
-      const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1b1411, roughness: 0.15 });
-      const scleraMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2 });
-      const goldMat = new THREE.MeshStandardMaterial({ color: 0xf6c95e, roughness: 0.22, metalness: 0.9 });
-      const sneakerWhiteMat = new THREE.MeshStandardMaterial({ color: 0xf5f7fa, roughness: 0.45 });
-      const sneakerSoleMat = new THREE.MeshStandardMaterial({ color: 0xd9a773, roughness: 0.72 });
-
-      function createLimb(rTop, rBot, length, mat, capTop = true, capBot = true) {
-        const g = new THREE.Group();
-        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, length, 20), mat);
-        cyl.position.y = -length / 2; cyl.castShadow = true; cyl.receiveShadow = true; g.add(cyl);
-        if (capTop) { const s1 = new THREE.Mesh(new THREE.SphereGeometry(rTop, 18, 14), mat); s1.castShadow = true; g.add(s1); }
-        if (capBot) { const s2 = new THREE.Mesh(new THREE.SphereGeometry(rBot, 18, 14), mat); s2.position.y = -length; s2.castShadow = true; g.add(s2); }
-        return g;
-      }
-
-      const dancer = new THREE.Group(); scene.add(dancer);
-      const hips = new THREE.Group(); hips.position.y = 1.02; dancer.add(hips);
-
-      const pelvisMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.165, 0.205, 0.25, 28), denimMat);
-      pelvisMesh.scale.set(1.06, 1, 0.78); pelvisMesh.position.y = 0.05; pelvisMesh.castShadow = true; pelvisMesh.receiveShadow = true; hips.add(pelvisMesh);
-
-      const hipRound = new THREE.Mesh(new THREE.SphereGeometry(0.205, 24, 18), denimMat);
-      hipRound.scale.set(1.06, 0.62, 0.79); hipRound.position.y = -0.06; hipRound.castShadow = true; hips.add(hipRound);
-
-      const waistband = new THREE.Mesh(new THREE.CylinderGeometry(0.168, 0.169, 0.052, 28), denimMat);
-      waistband.scale.set(1.06, 1, 0.78); waistband.position.y = 0.195; waistband.castShadow = true; hips.add(waistband);
-
-      const waistStitch = new THREE.Mesh(new THREE.TorusGeometry(0.168, 0.0032, 8, 36), stitchMat);
-      waistStitch.rotation.x = Math.PI / 2; waistStitch.scale.set(1.06, 0.78, 1); waistStitch.position.y = 0.174; hips.add(waistStitch);
-
-      [0.42, -0.42, 1.55, -1.55, Math.PI].forEach((ang) => {
-        const loop = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.062, 0.014), denimMat);
-        loop.position.set(Math.sin(ang) * 0.182, 0.195, Math.cos(ang) * 0.136); loop.rotation.y = ang; hips.add(loop);
-      });
-
-      const topButton = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.008, 16), silverBtnMat);
-      topButton.rotation.x = Math.PI / 2; topButton.position.set(0, 0.196, 0.134); hips.add(topButton);
-
-      const flyPlacket = new THREE.Mesh(new THREE.BoxGeometry(0.036, 0.17, 0.008), denimMat);
-      flyPlacket.position.set(0.006, 0.085, 0.147); flyPlacket.rotation.x = -0.11; hips.add(flyPlacket);
-
-      [[-0.125, 0.15, 0.102], [0.125, 0.15, 0.102], [0.088, 0.145, 0.124]].forEach(([x, y, z]) => {
-        const rivet = new THREE.Mesh(new THREE.SphereGeometry(0.0065, 10, 10), rivetMat); rivet.position.set(x, y, z); hips.add(rivet);
-      });
-
-      const leftBackPocket = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.128, 0.012), pocketMat);
-      leftBackPocket.position.set(-0.095, 0.015, -0.156); leftBackPocket.rotation.y = Math.PI + 0.24; leftBackPocket.rotation.x = 0.08; hips.add(leftBackPocket);
-
-      const rightBackPocket = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.128, 0.012), pocketMat);
-      rightBackPocket.position.set(0.095, 0.015, -0.156); rightBackPocket.rotation.y = Math.PI - 0.24; rightBackPocket.rotation.x = 0.08; hips.add(rightBackPocket);
-
-      const redTabMesh = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.032, 0.006), redTabMat);
-      redTabMesh.position.set(0.034, 0.044, -0.167); redTabMesh.rotation.y = Math.PI - 0.15; hips.add(redTabMesh);
-
-      const leatherPatch = new THREE.Mesh(new THREE.BoxGeometry(0.072, 0.044, 0.008), patchMat);
-      leatherPatch.position.set(0.086, 0.195, -0.122); leatherPatch.rotation.y = Math.PI - 0.36; hips.add(leatherPatch);
-
-      function buildLeg(side) {
-        const hipJoint = new THREE.Group(); hipJoint.position.set(side * 0.105, -0.05, 0); hips.add(hipJoint);
-        hipJoint.add(createLimb(0.104, 0.086, 0.44, denimMat, true, true));
-        const kneeJoint = new THREE.Group(); kneeJoint.position.y = -0.44; hipJoint.add(kneeJoint);
-        kneeJoint.add(createLimb(0.084, 0.076, 0.40, denimMat, false, false));
-        const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.081, 0.082, 0.048, 22), denimCuffMat);
-        cuff.position.y = -0.39; cuff.castShadow = true; kneeJoint.add(cuff);
-        const ankleSkin = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.039, 0.075, 16), skinMat);
-        ankleSkin.position.y = -0.445; ankleSkin.castShadow = true; kneeJoint.add(ankleSkin);
-        const footJoint = new THREE.Group(); footJoint.position.y = -0.48; kneeJoint.add(footJoint);
-        const shoeUpper = new THREE.Mesh(new THREE.BoxGeometry(0.088, 0.058, 0.21), sneakerWhiteMat);
-        shoeUpper.position.set(0, -0.015, 0.048); shoeUpper.castShadow = true; footJoint.add(shoeUpper);
-        const toeCap = new THREE.Mesh(new THREE.SphereGeometry(0.044, 14, 12), sneakerWhiteMat);
-        toeCap.scale.set(1, 0.66, 1.15); toeCap.position.set(0, -0.018, 0.145); toeCap.castShadow = true; footJoint.add(toeCap);
-        const sole = new THREE.Mesh(new THREE.BoxGeometry(0.094, 0.022, 0.235), sneakerSoleMat);
-        sole.position.set(0, -0.048, 0.056); sole.castShadow = true; footJoint.add(sole);
-        return { hipJoint, kneeJoint, footJoint };
-      }
-
-      const leftLeg = buildLeg(-1), rightLeg = buildLeg(1);
-
-      const spine = new THREE.Group(); spine.position.y = 0.20; hips.add(spine);
-      const waistMid = new THREE.Mesh(new THREE.CylinderGeometry(0.132, 0.145, 0.07, 24), skinMat);
-      waistMid.scale.set(1.02, 1, 0.74); waistMid.position.y = 0.035; waistMid.castShadow = true; spine.add(waistMid);
-
-      const chest = new THREE.Group(); chest.position.y = 0.07; spine.add(chest);
-      const torsoTop = new THREE.Mesh(new THREE.CylinderGeometry(0.164, 0.134, 0.34, 26), topMat);
-      torsoTop.scale.set(1.04, 1, 0.74); torsoTop.position.y = 0.17; torsoTop.castShadow = true; chest.add(torsoTop);
-
-      [-0.068, 0.068].forEach((bx) => {
-        const contour = new THREE.Mesh(new THREE.SphereGeometry(0.076, 18, 16), topMat);
-        contour.scale.set(1.0, 0.95, 0.85); contour.position.set(bx, 0.22, 0.088); contour.castShadow = true; chest.add(contour);
-      });
-
-      const shoulderBar = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.056, 0.33, 18), skinMat);
-      shoulderBar.rotation.z = Math.PI / 2; shoulderBar.position.y = 0.34; shoulderBar.castShadow = true; chest.add(shoulderBar);
-
-      [-0.095, 0.095].forEach((sx) => {
-        const strap = new THREE.Mesh(new THREE.BoxGeometry(0.032, 0.09, 0.15), topMat); strap.position.set(sx, 0.355, 0); chest.add(strap);
-      });
-
-      function buildArm(side) {
-        const shoulderJoint = new THREE.Group(); shoulderJoint.position.set(side * 0.19, 0.335, 0); chest.add(shoulderJoint);
-        shoulderJoint.add(createLimb(0.046, 0.038, 0.27, skinMat, true, true));
-        const elbowJoint = new THREE.Group(); elbowJoint.position.y = -0.27; shoulderJoint.add(elbowJoint);
-        elbowJoint.add(createLimb(0.036, 0.028, 0.25, skinMat, false, true));
-        const hand = new THREE.Mesh(new THREE.SphereGeometry(0.034, 14, 12), skinMat);
-        hand.scale.set(0.75, 1.35, 0.55); hand.position.y = -0.275; hand.castShadow = true; elbowJoint.add(hand);
-        return { shoulderJoint, elbowJoint };
-      }
-
-      const leftArm = buildArm(-1), rightArm = buildArm(1);
-
-      const neck = new THREE.Group(); neck.position.y = 0.37; chest.add(neck);
-      const neckMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.044, 0.052, 0.10, 18), skinMat);
-      neckMesh.position.y = 0.045; neckMesh.castShadow = true; neck.add(neckMesh);
-
-      const head = new THREE.Group(); head.position.y = 0.10; neck.add(head);
-      const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.115, 26, 22), skinMat);
-      headMesh.scale.set(0.92, 1.08, 0.96); headMesh.position.y = 0.10; headMesh.castShadow = true; head.add(headMesh);
-
-      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.028, 10), skinMat);
-      nose.rotation.x = Math.PI / 2.2; nose.position.set(0, 0.092, 0.112); head.add(nose);
-
-      [-0.038, 0.038].forEach((ex) => {
-        const white = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 10), scleraMat);
-        white.scale.set(1.15, 0.82, 0.6); white.position.set(ex, 0.114, 0.098); head.add(white);
-        const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.009, 12, 10), eyeMat);
-        pupil.position.set(ex, 0.114, 0.106); head.add(pupil);
-        const brow = new THREE.Mesh(new THREE.BoxGeometry(0.032, 0.006, 0.006), hairMat);
-        brow.position.set(ex, 0.136, 0.101); brow.rotation.z = ex < 0 ? 0.12 : -0.12; head.add(brow);
-      });
-
-      const lips = new THREE.Mesh(new THREE.TorusGeometry(0.02, 0.0055, 8, 16, Math.PI), lipMat);
-      lips.rotation.z = Math.PI; lips.position.set(0, 0.064, 0.101); head.add(lips);
-
-      [-0.105, 0.105].forEach((gx) => {
-        const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.018, 0.003, 8, 18), goldMat);
-        hoop.rotation.y = Math.PI / 2; hoop.position.set(gx, 0.072, 0.005); head.add(hoop);
-      });
-
-      const hairCrown = new THREE.Mesh(new THREE.SphereGeometry(0.124, 24, 20), hairMat);
-      hairCrown.scale.set(0.96, 1.06, 1.02); hairCrown.position.set(0, 0.116, -0.012); hairCrown.castShadow = true; head.add(hairCrown);
-
-      [-0.082, 0.082].forEach((bx) => {
-        const strand = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.012, 0.17, 12), hairMat);
-        strand.position.set(bx, 0.06, 0.065); strand.rotation.z = bx < 0 ? 0.18 : -0.18; head.add(strand);
-      });
-
-      const ponytail = new THREE.Group(); ponytail.position.set(0, 0.165, -0.115); head.add(ponytail);
-      const hairTie = new THREE.Mesh(new THREE.TorusGeometry(0.026, 0.008, 8, 16), redTabMat);
-      hairTie.rotation.x = Math.PI / 2.6; ponytail.add(hairTie);
-      const tailUpper = createLimb(0.042, 0.056, 0.18, hairMat, true, true);
-      tailUpper.rotation.x = 0.38; ponytail.add(tailUpper);
-      const tailLowerGroup = new THREE.Group(); tailLowerGroup.position.set(0, -0.16, -0.065); ponytail.add(tailLowerGroup);
-      const tailLower = createLimb(0.052, 0.016, 0.24, hairMat, false, true);
-      tailLower.rotation.x = 0.18; tailLowerGroup.add(tailLower);
-
-      const floorMat = new THREE.MeshStandardMaterial({ map: createStageFloorTexture(), roughness: 0.28, metalness: 0.35 });
-      const floor = new THREE.Mesh(new THREE.CircleGeometry(9, 64), floorMat);
+      const floor = new THREE.Mesh(new THREE.CircleGeometry(10, 72), new THREE.MeshStandardMaterial({
+        map: createStageFloorTexture(), roughness: 0.24, metalness: 0.30, envMapIntensity: 0.8
+      }));
       floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
 
-      const ring1Mat = new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.55 });
-      const ring1 = new THREE.Mesh(new THREE.RingGeometry(1.18, 1.22, 64), ring1Mat);
-      ring1.rotation.x = -Math.PI / 2; ring1.position.y = 0.004; scene.add(ring1);
+      const ring1Mat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.5 });
+      const ring1 = new THREE.Mesh(new THREE.RingGeometry(1.18, 1.21, 72), ring1Mat);
+      ring1.rotation.x = -Math.PI / 2; ring1.position.y = 0.003; scene.add(ring1);
 
-      const ring2Mat = new THREE.MeshBasicMaterial({ color: 0xf43f5e, transparent: true, opacity: 0.38 });
-      const ring2 = new THREE.Mesh(new THREE.RingGeometry(2.1, 2.13, 64), ring2Mat);
-      ring2.rotation.x = -Math.PI / 2; ring2.position.y = 0.003; scene.add(ring2);
+      const ring2Mat = new THREE.MeshBasicMaterial({ color: 0xf43f5e, transparent: true, opacity: 0.34 });
+      const ring2 = new THREE.Mesh(new THREE.RingGeometry(2.1, 2.125, 72), ring2Mat);
+      ring2.rotation.x = -Math.PI / 2; ring2.position.y = 0.002; scene.add(ring2);
 
-      const pillarGeo = new THREE.CylinderGeometry(0.04, 0.04, 4.5, 12);
-      const pillarMat = new THREE.MeshBasicMaterial({ color: 0x60a5fa, transparent: true, opacity: 0.28 });
-      [-2.6, 2.6].forEach((px) => { const p = new THREE.Mesh(pillarGeo, pillarMat); p.position.set(px, 2.25, -3.2); scene.add(p); });
-
-      const particleCount = 180;
-      const pGeo = new THREE.BufferGeometry();
-      const pPos = new Float32Array(particleCount * 3);
+      const particleCount = 160, pGeo = new THREE.BufferGeometry(), pPos = new Float32Array(particleCount * 3);
       for (let i = 0; i < particleCount; i++) {
-        const r = 1.6 + Math.random() * 5.2, a = Math.random() * Math.PI * 2;
-        pPos[i * 3] = Math.cos(a) * r; pPos[i * 3 + 1] = 0.3 + Math.random() * 3.6; pPos[i * 3 + 2] = Math.sin(a) * r;
+        const r = 1.6 + Math.random() * 5.0, a = Math.random() * Math.PI * 2;
+        pPos[i * 3] = Math.cos(a) * r; pPos[i * 3 + 1] = 0.3 + Math.random() * 3.5; pPos[i * 3 + 2] = Math.sin(a) * r;
       }
       pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-      const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xfde68a, size: 0.035, transparent: true, opacity: 0.65 }));
+      const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xfde68a, size: 0.03, transparent: true, opacity: 0.55 }));
       scene.add(particles);
 
-      const hemiLight = new THREE.HemisphereLight(0xcbd5e1, 0x1e1b4b, 0.72); scene.add(hemiLight);
-      const keyLight = new THREE.SpotLight(0xfff1e0, 2.1, 18, Math.PI / 4, 0.45, 1.1);
-      keyLight.position.set(2.4, 4.6, 3.2); keyLight.castShadow = true; keyLight.shadow.mapSize.width = 1024; keyLight.shadow.mapSize.height = 1024; keyLight.shadow.bias = -0.0005; scene.add(keyLight);
-      const rimLightA = new THREE.PointLight(0xf43f5e, 1.5, 10); rimLightA.position.set(-2.5, 2.2, -1.8); scene.add(rimLightA);
-      const rimLightB = new THREE.PointLight(0x38bdf8, 1.4, 10); rimLightB.position.set(2.5, 1.9, -2.0); scene.add(rimLightB);
-      const fillLight = new THREE.DirectionalLight(0xe2e8f0, 0.55); fillLight.position.set(-2, 2.5, 2.5); scene.add(fillLight);
+      const hemiLight = new THREE.HemisphereLight(0xfff4e8, 0x1e1b4b, 1.1); scene.add(hemiLight);
+      const keyLight = new THREE.SpotLight(0xfff1e0, 28, 18, Math.PI / 4, 0.55, 1.5);
+      keyLight.position.set(2.3, 4.5, 3.2); keyLight.castShadow = true; keyLight.shadow.mapSize.width = 2048; keyLight.shadow.mapSize.height = 2048; keyLight.shadow.bias = -0.0004; scene.add(keyLight);
+      const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.0); fillLight.position.set(-2.6, 2.6, 2.4); scene.add(fillLight);
+      const rimLightA = new THREE.PointLight(0xf43f5e, 16, 10, 1.5); rimLightA.position.set(-2.3, 2.2, -2.0); scene.add(rimLightA);
+      const rimLightB = new THREE.PointLight(0x38bdf8, 15, 10, 1.5); rimLightB.position.set(2.4, 2.0, -2.1); scene.add(rimLightB);
 
       const lightPresets = {
-        sunset: { bg: 0x121224, key: 0xffe4c4, keyInt: 2.1, rimA: 0xf43f5e, rimB: 0x38bdf8, hemiSky: 0xfde68a, hemiGround: 0x1e1b4b, ring1: 0x38bdf8, ring2: 0xf43f5e },
-        club: { bg: 0x090b16, key: 0xe0e7ff, keyInt: 1.85, rimA: 0xd946ef, rimB: 0x06b6d4, hemiSky: 0x818cf8, hemiGround: 0x0f172a, ring1: 0x06b6d4, ring2: 0xd946ef },
-        studio: { bg: 0x1e2536, key: 0xffffff, keyInt: 2.35, rimA: 0xfef3c7, rimB: 0xbae6fd, hemiSky: 0xf8fafc, hemiGround: 0x334155, ring1: 0x93c5fd, ring2: 0xfca5a5 }
+        sunset: { bg: 0x101320, key: 0xffebd6, keyInt: 28, rimA: 0xf43f5e, rimB: 0x38bdf8, hemiSky: 0xfff4e8, hemiGround: 0x1e1b4b, ring1: 0x38bdf8, ring2: 0xf43f5e },
+        club: { bg: 0x090a14, key: 0xe0e7ff, keyInt: 24, rimA: 0xd946ef, rimB: 0x06b6d4, hemiSky: 0x818cf8, hemiGround: 0x0f172a, ring1: 0x06b6d4, ring2: 0xd946ef },
+        studio: { bg: 0x1d2332, key: 0xffffff, keyInt: 32, rimA: 0xfef3c7, rimB: 0xbae6fd, hemiSky: 0xf8fafc, hemiGround: 0x334155, ring1: 0x93c5fd, ring2: 0xfca5a5 }
       };
-
       function applyLighting(presetKey) {
         const p = lightPresets[presetKey] || lightPresets.sunset;
         scene.background.setHex(p.bg); scene.fog.color.setHex(p.bg);
@@ -433,46 +260,144 @@
         ring1Mat.color.setHex(p.ring1); ring2Mat.color.setHex(p.ring2);
       }
 
-      const camState = { theta: 0.25, phi: 1.38, radius: 3.35, targetY: 1.06, goalTheta: 0.25, goalPhi: 1.38, goalRadius: 3.35, goalTargetY: 1.06, autoOrbit: false, dragging: false, lastX: 0, lastY: 0 };
+      const modelRoot = new THREE.Group(); scene.add(modelRoot);
+      let currentModel = null, mixer = null, activeAction = null;
+      const savedMaterialColors = new Map();
+      const state = { playing: true, style: 'pop', bpm: 116, phase: 0 };
 
-      function setCameraPreset(preset) {
-        camState.autoOrbit = false;
-        if (preset === 'full') { camState.goalTheta = 0.22; camState.goalPhi = 1.38; camState.goalRadius = 3.35; camState.goalTargetY = 1.05; }
-        else if (preset === 'jeans') { camState.goalTheta = 0.14; camState.goalPhi = 1.48; camState.goalRadius = 1.75; camState.goalTargetY = 0.82; }
-        else if (preset === 'back') { camState.goalTheta = Math.PI - 0.25; camState.goalPhi = 1.45; camState.goalRadius = 1.68; camState.goalTargetY = 0.92; }
-        else if (preset === 'orbit') { camState.autoOrbit = true; camState.goalPhi = 1.36; camState.goalRadius = 3.15; camState.goalTargetY = 1.05; }
+      function applyDenimGrade(styleKey) {
+        if (!currentModel) return;
+        currentModel.traverse((obj) => {
+          if (!obj.isMesh || !obj.material) return;
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          mats.forEach((m) => {
+            if (!m.color) return;
+            const orig = savedMaterialColors.get(m.uuid);
+            if (!orig) return;
+            if (styleKey === 'pop') m.color.copy(orig).multiply(new THREE.Color(0.95, 0.99, 1.08));
+            else if (styleKey === 'disco') m.color.copy(orig).multiply(new THREE.Color(0.82, 0.88, 1.05));
+            else m.color.copy(orig);
+            m.needsUpdate = true;
+          });
+        });
       }
 
+      function mountGLTF(gltf, label) {
+        if (currentModel) { modelRoot.remove(currentModel); currentModel = null; }
+        if (mixer) { mixer.stopAllAction(); mixer = null; activeAction = null; }
+        savedMaterialColors.clear();
+        const model = gltf.scene;
+        model.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true; child.receiveShadow = true; child.frustumCulled = false;
+            const mats = Array.isArray(child.material) ? child.material : [child.material];
+            mats.forEach((m) => {
+              if (m && m.color && !savedMaterialColors.has(m.uuid)) savedMaterialColors.set(m.uuid, m.color.clone());
+              if (m && 'envMapIntensity' in m) m.envMapIntensity = 0.85;
+            });
+          }
+        });
+        const box = new THREE.Box3().setFromObject(model), size = new THREE.Vector3();
+        box.getSize(size);
+        model.scale.setScalar(size.y > 0.001 ? 1.72 / size.y : 1);
+        const scaledBox = new THREE.Box3().setFromObject(model), scaledCenter = new THREE.Vector3();
+        scaledBox.getCenter(scaledCenter);
+        model.position.x -= scaledCenter.x; model.position.z -= scaledCenter.z; model.position.y -= scaledBox.min.y;
+        modelRoot.add(model); currentModel = model; applyDenimGrade(state.style);
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(model);
+          activeAction = mixer.clipAction(gltf.animations[0]);
+          activeAction.play(); activeAction.timeScale = state.bpm / 116;
+          document.getElementById('model-subtitle').textContent = `${label} · 骨骼动画 (${gltf.animations[0].name || 'Dance'})`;
+        } else {
+          document.getElementById('model-subtitle').textContent = `${label} · 静态展示模式（未包含骨骼动画）`;
+        }
+        loaderOverlay.classList.add('hidden');
+        showToast(`已加载高精模型：${label}`);
+      }
+
+      const defaultGlbUrls = [
+        'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Michelle.glb',
+        'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Michelle.glb',
+        'https://threejs.org/examples/models/gltf/Michelle.glb'
+      ];
+      const gltfLoader = new THREE.GLTFLoader();
+      function loadDefaultGLB(urlIndex) {
+        if (urlIndex >= defaultGlbUrls.length) {
+          loaderTitle.textContent = '模型加载失败（网络受限）';
+          loaderSub.textContent = '请点击右上角「↑ 换 GLB 模型」选择本地 .glb 文件，或刷新重试';
+          progressFill.style.width = '100%';
+          setTimeout(() => loaderOverlay.classList.add('hidden'), 2400);
+          return;
+        }
+        loaderSub.textContent = `正在从 CDN 源 ${urlIndex + 1}/${defaultGlbUrls.length} 加载 Michelle.glb...`;
+        gltfLoader.load(
+          defaultGlbUrls[urlIndex],
+          (gltf) => { progressFill.style.width = '100%'; mountGLTF(gltf, 'Michelle.glb (Mixamo 写实牛仔裤舞者)'); },
+          (xhr) => { if (xhr && xhr.total > 0) progressFill.style.width = Math.min(96, Math.round((xhr.loaded / xhr.total) * 100)) + '%'; },
+          () => loadDefaultGLB(urlIndex + 1)
+        );
+      }
+
+      function loadLocalFile(file) {
+        if (!file) return;
+        loaderOverlay.classList.remove('hidden');
+        loaderTitle.textContent = `正在解析 ${file.name}...`;
+        loaderSub.textContent = '本地 GLB 骨骼模型加载中';
+        progressFill.style.width = '50%';
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          gltfLoader.parse(ev.target.result, '', (gltf) => { progressFill.style.width = '100%'; mountGLTF(gltf, file.name); }, () => {
+            loaderOverlay.classList.add('hidden'); showToast('GLB 文件解析失败，请确认是有效的 .glb 模型');
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      const fileInput = document.getElementById('glb-file-input');
+      document.getElementById('btn-upload').addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => { if (e.target.files && e.target.files[0]) loadLocalFile(e.target.files[0]); });
+      window.addEventListener('dragover', (e) => e.preventDefault());
+      window.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) loadLocalFile(e.dataTransfer.files[0]); });
+
+      const camState = { theta: 0.25, phi: 1.40, radius: 3.15, targetY: 0.96, goalTheta: 0.25, goalPhi: 1.40, goalRadius: 3.15, goalTargetY: 0.96, autoOrbit: false, dragging: false, lastX: 0, lastY: 0 };
+      function setCameraPreset(preset) {
+        camState.autoOrbit = false;
+        if (preset === 'full') { camState.goalTheta = 0.24; camState.goalPhi = 1.40; camState.goalRadius = 3.15; camState.goalTargetY = 0.96; }
+        else if (preset === 'jeans') { camState.goalTheta = 0.14; camState.goalPhi = 1.48; camState.goalRadius = 1.58; camState.goalTargetY = 0.72; }
+        else if (preset === 'back') { camState.goalTheta = Math.PI - 0.22; camState.goalPhi = 1.44; camState.goalRadius = 1.65; camState.goalTargetY = 0.86; }
+        else if (preset === 'orbit') { camState.autoOrbit = true; camState.goalPhi = 1.38; camState.goalRadius = 2.95; camState.goalTargetY = 0.96; }
+      }
       container.addEventListener('pointerdown', (e) => { camState.dragging = true; camState.autoOrbit = false; camState.lastX = e.clientX; camState.lastY = e.clientY; });
       window.addEventListener('pointermove', (e) => {
         if (!camState.dragging) return;
         const dx = e.clientX - camState.lastX, dy = e.clientY - camState.lastY;
         camState.lastX = e.clientX; camState.lastY = e.clientY;
-        camState.goalTheta -= dx * 0.008;
-        camState.goalPhi = Math.max(0.55, Math.min(1.62, camState.goalPhi - dy * 0.006));
+        camState.goalTheta -= dx * 0.0075;
+        camState.goalPhi = Math.max(0.55, Math.min(1.62, camState.goalPhi - dy * 0.0058));
       });
       window.addEventListener('pointerup', () => { camState.dragging = false; });
-      container.addEventListener('wheel', (e) => { e.preventDefault(); camState.goalRadius = Math.max(1.3, Math.min(5.6, camState.goalRadius + e.deltaY * 0.0022)); }, { passive: false });
+      container.addEventListener('wheel', (e) => { e.preventDefault(); camState.goalRadius = Math.max(1.15, Math.min(5.6, camState.goalRadius + e.deltaY * 0.002)); }, { passive: false });
 
       let audioCtx = null, musicEnabled = false, nextStepTime = 0, stepIndex = 0, audioTimer = null;
       function playKick(time) {
         const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
         osc.type = 'sine'; osc.frequency.setValueAtTime(135, time); osc.frequency.exponentialRampToValueAtTime(42, time + 0.14);
-        gain.gain.setValueAtTime(0.32, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.22);
+        gain.gain.setValueAtTime(0.30, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.22);
         osc.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.24);
       }
       function playHat(time, accent) {
         const bufferSize = audioCtx.sampleRate * 0.05, buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate), data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
         const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
-        const filter = audioCtx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 7200;
-        const gain = audioCtx.createGain(); gain.gain.setValueAtTime(accent ? 0.09 : 0.045, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+        const filter = audioCtx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 7400;
+        const gain = audioCtx.createGain(); gain.gain.setValueAtTime(accent ? 0.085 : 0.04, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
         noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(time);
       }
       function playBass(time, freq) {
         const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
         osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, time);
-        gain.gain.setValueAtTime(0.14, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+        gain.gain.setValueAtTime(0.13, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
         osc.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.22);
       }
       const bassNotes = [110, 110, 130.81, 146.83, 110, 164.81, 146.83, 130.81];
@@ -503,52 +428,13 @@
         }
       }
 
-      const state = { playing: true, style: 'pop', bpm: 116, phase: 0 };
-      function updateDance(phase) {
-        const beat = phase, s1 = Math.sin(beat), c1 = Math.cos(beat), s2 = Math.sin(beat * 2), c2 = Math.cos(beat * 2);
-        if (state.style === 'pop') {
-          hips.position.y = 0.995 + Math.abs(s1) * 0.065; hips.position.x = s1 * 0.12; hips.rotation.y = s1 * 0.28; hips.rotation.z = -s1 * 0.12;
-          spine.rotation.z = s1 * 0.11; spine.rotation.y = -s1 * 0.22; chest.rotation.x = 0.04 + s2 * 0.05;
-          head.rotation.y = s1 * 0.16; head.rotation.z = -s1 * 0.09; head.rotation.x = Math.sin(beat * 2 - 0.4) * 0.07;
-          leftLeg.hipJoint.rotation.x = -0.14 + Math.max(0, s1) * 0.34; leftLeg.hipJoint.rotation.z = 0.08 + s1 * 0.09;
-          leftLeg.kneeJoint.rotation.x = 0.24 + Math.max(0, s1) * 0.45; leftLeg.footJoint.rotation.x = -0.12 - Math.max(0, s1) * 0.2;
-          rightLeg.hipJoint.rotation.x = -0.14 + Math.max(0, -s1) * 0.34; rightLeg.hipJoint.rotation.z = -0.08 + s1 * 0.09;
-          rightLeg.kneeJoint.rotation.x = 0.24 + Math.max(0, -s1) * 0.45; rightLeg.footJoint.rotation.x = -0.12 - Math.max(0, -s1) * 0.2;
-          leftArm.shoulderJoint.rotation.z = 0.65 + s1 * 0.48; leftArm.shoulderJoint.rotation.x = -0.45 + c1 * 0.45; leftArm.elbowJoint.rotation.x = -1.05 - s2 * 0.35;
-          rightArm.shoulderJoint.rotation.z = -0.65 + s1 * 0.48; rightArm.shoulderJoint.rotation.x = -0.45 - c1 * 0.45; rightArm.elbowJoint.rotation.x = -1.05 + s2 * 0.35;
-          dancer.rotation.y = Math.sin(beat * 0.25) * 0.35;
-        } else if (state.style === 'disco') {
-          hips.position.y = 0.99 + Math.abs(s2) * 0.055; hips.position.x = s1 * 0.15; hips.rotation.y = s1 * 0.36; hips.rotation.z = -s1 * 0.15;
-          spine.rotation.z = s1 * 0.14; spine.rotation.y = -s1 * 0.28; chest.rotation.x = -0.02 + c2 * 0.05;
-          head.rotation.y = -s1 * 0.18; head.rotation.z = s1 * 0.08; head.rotation.x = s2 * 0.06;
-          leftLeg.hipJoint.rotation.x = -0.12 + c1 * 0.26; leftLeg.hipJoint.rotation.z = 0.1 + s1 * 0.1; leftLeg.kneeJoint.rotation.x = 0.22 + Math.max(0, c1) * 0.42; leftLeg.footJoint.rotation.x = -0.1;
-          rightLeg.hipJoint.rotation.x = -0.12 - c1 * 0.26; rightLeg.hipJoint.rotation.z = -0.1 + s1 * 0.1; rightLeg.kneeJoint.rotation.x = 0.22 + Math.max(0, -c1) * 0.42; rightLeg.footJoint.rotation.x = -0.1;
-          rightArm.shoulderJoint.rotation.z = -2.35 + s1 * 0.32; rightArm.shoulderJoint.rotation.x = -0.35 + c1 * 0.25; rightArm.elbowJoint.rotation.x = -0.25 - Math.max(0, -s1) * 0.5;
-          leftArm.shoulderJoint.rotation.z = 0.55 - s1 * 0.25; leftArm.shoulderJoint.rotation.x = -0.35; leftArm.elbowJoint.rotation.x = -1.35 + s2 * 0.25;
-          dancer.rotation.y = Math.sin(beat * 0.35) * 0.65;
-        } else {
-          const wave = Math.sin(beat * 0.75);
-          hips.position.y = 1.01 + Math.sin(beat * 1.5) * 0.045; hips.position.x = wave * 0.13; hips.rotation.y = wave * 0.42; hips.rotation.z = -wave * 0.14;
-          spine.rotation.z = wave * 0.15; spine.rotation.y = -wave * 0.3; chest.rotation.x = Math.sin(beat * 1.5 - 0.5) * 0.08;
-          head.rotation.y = wave * 0.22; head.rotation.z = -wave * 0.12; head.rotation.x = Math.cos(beat * 1.5) * 0.06;
-          leftLeg.hipJoint.rotation.x = -0.1 + Math.sin(beat * 0.75) * 0.24; leftLeg.hipJoint.rotation.z = 0.07 + wave * 0.07; leftLeg.kneeJoint.rotation.x = 0.18 + Math.abs(Math.sin(beat * 0.75)) * 0.28; leftLeg.footJoint.rotation.x = -0.08;
-          rightLeg.hipJoint.rotation.x = -0.1 - Math.sin(beat * 0.75) * 0.24; rightLeg.hipJoint.rotation.z = -0.07 + wave * 0.07; rightLeg.kneeJoint.rotation.x = 0.18 + Math.abs(Math.cos(beat * 0.75)) * 0.28; rightLeg.footJoint.rotation.x = -0.08;
-          leftArm.shoulderJoint.rotation.z = 1.15 + Math.sin(beat * 0.75) * 0.55; leftArm.shoulderJoint.rotation.x = -0.55 + Math.cos(beat * 0.75) * 0.45; leftArm.elbowJoint.rotation.x = -0.65 - Math.sin(beat * 1.5) * 0.35;
-          rightArm.shoulderJoint.rotation.z = -1.15 + Math.cos(beat * 0.75) * 0.55; rightArm.shoulderJoint.rotation.x = -0.55 - Math.sin(beat * 0.75) * 0.45; rightArm.elbowJoint.rotation.x = -0.65 + Math.sin(beat * 1.5) * 0.35;
-          dancer.rotation.y += state.playing ? 0.008 : 0;
-        }
-        ponytail.rotation.z = -s1 * 0.24; ponytail.rotation.x = 0.12 + Math.abs(s2) * 0.14;
-        tailLowerGroup.rotation.z = -Math.sin(beat - 0.5) * 0.28;
-      }
-
-      const styleNames = { pop: 'Groove Pop', disco: 'Retro Disco', flow: 'Freestyle Flow' };
-      const camNames = { full: '全景环绕', jeans: '501 丹宁细节', back: '后袋小红标', orbit: '自动环绕' };
-
+      const styleNames = { pop: '501 经典蓝', disco: '复古深原牛', flow: '模型原色' };
+      const camNames = { full: '全景舞台', jeans: '牛仔裤特写', back: '背面视角', orbit: '自动环绕' };
       document.querySelectorAll('#dance-pills .pill').forEach((btn) => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('#dance-pills .pill').forEach((b) => b.classList.remove('active'));
           btn.classList.add('active'); state.style = btn.dataset.style;
-          document.getElementById('style-badge').textContent = styleNames[state.style];
+          document.getElementById('style-badge').textContent = styleNames[state.style]; applyDenimGrade(state.style);
         });
       });
       document.querySelectorAll('#cam-pills .pill').forEach((btn) => {
@@ -566,8 +452,11 @@
       });
 
       const bpmSlider = document.getElementById('bpm-slider'), bpmVal = document.getElementById('bpm-val');
-      bpmSlider.addEventListener('input', () => { state.bpm = Number(bpmSlider.value); bpmVal.textContent = `${state.bpm} BPM`; });
-
+      bpmSlider.addEventListener('input', () => {
+        state.bpm = Number(bpmSlider.value);
+        bpmVal.textContent = `${(state.bpm / 116).toFixed(2)}x · ${state.bpm} BPM`;
+        if (activeAction) activeAction.timeScale = state.bpm / 116;
+      });
       const btnPlay = document.getElementById('btn-play');
       btnPlay.addEventListener('click', () => {
         state.playing = !state.playing;
@@ -575,13 +464,11 @@
         btnPlay.classList.toggle('active', state.playing);
       });
       document.getElementById('btn-music').addEventListener('click', toggleMusic);
-
       const dock = document.getElementById('control-dock'), btnPanel = document.getElementById('btn-panel');
       btnPanel.addEventListener('click', () => {
         const collapsed = dock.classList.toggle('collapsed');
         btnPanel.textContent = collapsed ? '展开面板' : '收起面板';
       });
-
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -592,9 +479,9 @@
       function animate() {
         requestAnimationFrame(animate);
         const dt = Math.min(clock.getDelta(), 0.05);
-        if (state.playing) { state.phase += dt * (state.bpm / 60) * Math.PI; updateDance(state.phase); }
-        particles.rotation.y += dt * 0.08;
-        const pulse = 1 + Math.sin(state.phase * 2) * 0.025; ring1.scale.set(pulse, pulse, 1);
+        if (state.playing) { state.phase += dt * (state.bpm / 60) * Math.PI; if (mixer) mixer.update(dt); }
+        particles.rotation.y += dt * 0.06;
+        const pulse = 1 + Math.sin(state.phase * 2) * 0.02; ring1.scale.set(pulse, pulse, 1);
         if (camState.autoOrbit) camState.goalTheta += dt * 0.42;
         camState.theta += (camState.goalTheta - camState.theta) * 0.09;
         camState.phi += (camState.goalPhi - camState.phi) * 0.09;
@@ -609,7 +496,7 @@
         camera.lookAt(0, camState.targetY, 0);
         renderer.render(scene, camera);
       }
-      updateDance(0.4);
+      loadDefaultGLB(0);
       animate();
     })();
   </script>
